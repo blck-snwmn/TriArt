@@ -1,10 +1,16 @@
+import argparse
 from triart.polygonizer import polygonize_image, save_image
 
 def main():
-    image_path = 'path_to_your_image.jpg'  # 画像パスを適切に設定
-    result_image = polygonize_image(image_path)
-    save_path = 'path_to_save_result.jpg'  # 保存パスを適切に設定
-    save_image(result_image, save_path)
+    parser = argparse.ArgumentParser(description='Polygonize an image using Delaunay triangulation')
+    parser.add_argument('input', help='Input image path')
+    parser.add_argument('-o', '--output', default='output.jpg', help='Output image path (default: output.jpg)')
+    parser.add_argument('-n', '--num-points', type=int, default=6000, help='Number of points for triangulation (default: 6000)')
+    args = parser.parse_args()
+
+    result_image = polygonize_image(args.input, num_points=args.num_points)
+    save_image(result_image, args.output)
+    print(f'Saved to {args.output}')
 
 if __name__ == "__main__":
     main()
