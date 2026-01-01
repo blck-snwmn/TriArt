@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from scipy.spatial import Delaunay
-import matplotlib.pyplot as plt
+
 
 def polygonize_image(image_path, num_points=6000):
     image = cv2.imread(image_path)
@@ -29,11 +29,13 @@ def polygonize_image(image_path, num_points=6000):
         edge_points = edge_points[indices]
 
     # 画像境界に沿った点を追加（上下左右の辺）
-    num_boundary = 20
-    top = np.column_stack([np.zeros(num_boundary), np.linspace(0, w-1, num_boundary)])
-    bottom = np.column_stack([np.full(num_boundary, h-1), np.linspace(0, w-1, num_boundary)])
-    left = np.column_stack([np.linspace(0, h-1, num_boundary), np.zeros(num_boundary)])
-    right = np.column_stack([np.linspace(0, h-1, num_boundary), np.full(num_boundary, w-1)])
+    n = 20
+    x_range = np.linspace(0, w - 1, n)
+    y_range = np.linspace(0, h - 1, n)
+    top = np.column_stack([np.zeros(n), x_range])
+    bottom = np.column_stack([np.full(n, h - 1), x_range])
+    left = np.column_stack([y_range, np.zeros(n)])
+    right = np.column_stack([y_range, np.full(n, w - 1)])
     boundary_points = np.vstack([top, bottom, left, right]).astype(int)
 
     # 全ての点を結合
@@ -50,11 +52,12 @@ def polygonize_image(image_path, num_points=6000):
         mask = np.zeros((h, w), dtype=np.uint8)
         pts_shifted = pts_xy - np.array([[x, y]])
         cv2.fillConvexPoly(mask, pts_shifted, 255)
-        roi = image[y:y+h, x:x+w]
+        roi = image[y : y + h, x : x + w]
         mean_color = cv2.mean(roi, mask=mask)
         cv2.fillConvexPoly(img_polygonized, pts_xy, mean_color[:3])
 
     return img_polygonized
+
 
 def save_image(image, path):
     cv2.imwrite(path, image)
