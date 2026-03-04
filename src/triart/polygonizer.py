@@ -16,7 +16,8 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
         width: Image width
         height: Image height
         min_dist: Minimum distance between points
-        fixed_points: Points that must be preserved (y, x format) - e.g., edge/corner points
+        fixed_points: Points that must be preserved
+            (y, x format) - e.g., edge/corner points
         k: Number of attempts before rejecting a point
     """
     cell_size = min_dist / np.sqrt(2)
@@ -31,8 +32,11 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
     # Fixed points are stored separately and always preserved
     fixed_list = []
     if fixed_points is not None and len(fixed_points) > 0:
-        fixed_list = [(pt[0], pt[1]) for pt in fixed_points
-                      if 0 <= pt[0] < height and 0 <= pt[1] < width]
+        fixed_list = [
+            (pt[0], pt[1])
+            for pt in fixed_points
+            if 0 <= pt[0] < height and 0 <= pt[1] < width
+        ]
 
     # Build KDTree for fixed points to check distance efficiently
     fixed_tree = None
@@ -44,7 +48,10 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
         return int(point[0] / cell_size), int(point[1] / cell_size)
 
     def is_valid(point):
-        """Check if point is valid (within bounds and respects min_dist from NEW points only)."""
+        """Check if point is valid.
+
+        Checks bounds and min_dist from NEW points only.
+        """
         y, x = point
         if y < 0 or y >= height or x < 0 or x >= width:
             return False
@@ -64,7 +71,9 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
                     idx = grid[ny, nx]
                     if idx != -1:
                         other = points[idx]
-                        dist = np.sqrt((point[0] - other[0])**2 + (point[1] - other[1])**2)
+                        dy2 = (point[0] - other[0]) ** 2
+                        dx2 = (point[1] - other[1]) ** 2
+                        dist = np.sqrt(dy2 + dx2)
                         if dist < min_dist:
                             return False
         return True
@@ -97,7 +106,7 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
             radius = np.random.uniform(min_dist, 2 * min_dist)
             new_point = (
                 point[0] + radius * np.cos(angle),
-                point[1] + radius * np.sin(angle)
+                point[1] + radius * np.sin(angle),
             )
 
             if is_valid(new_point):
@@ -114,7 +123,14 @@ def poisson_disk_sampling(width, height, min_dist, fixed_points=None, k=30):
     return np.array(all_points)
 
 
-def adaptive_poisson_sampling(width, height, edge_map, base_min_dist, fixed_points=None, k=30):
+def adaptive_poisson_sampling(
+    width,
+    height,
+    edge_map,
+    base_min_dist,
+    fixed_points=None,
+    k=30,
+):
     """
     Adaptive Poisson disk sampling with variable min_dist based on edge distance.
 
@@ -158,8 +174,11 @@ def adaptive_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
 
     fixed_list = []
     if fixed_points is not None and len(fixed_points) > 0:
-        fixed_list = [(pt[0], pt[1]) for pt in fixed_points
-                      if 0 <= pt[0] < height and 0 <= pt[1] < width]
+        fixed_list = [
+            (pt[0], pt[1])
+            for pt in fixed_points
+            if 0 <= pt[0] < height and 0 <= pt[1] < width
+        ]
 
     fixed_tree = None
     if len(fixed_list) > 0:
@@ -189,7 +208,9 @@ def adaptive_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
                     idx = grid[ny, nx]
                     if idx != -1:
                         other = points[idx]
-                        dist = np.sqrt((point[0] - other[0])**2 + (point[1] - other[1])**2)
+                        dy2 = (point[0] - other[0]) ** 2
+                        dx2 = (point[1] - other[1]) ** 2
+                        dist = np.sqrt(dy2 + dx2)
                         other_min_dist = get_min_dist_at(other[0], other[1])
                         if dist < min(local_min_dist, other_min_dist):
                             return False
@@ -221,7 +242,7 @@ def adaptive_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
             radius = np.random.uniform(local_min_dist, 2 * local_min_dist)
             new_point = (
                 point[0] + radius * np.cos(angle),
-                point[1] + radius * np.sin(angle)
+                point[1] + radius * np.sin(angle),
             )
 
             if is_valid(new_point):
@@ -237,7 +258,14 @@ def adaptive_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
     return np.array(all_points)
 
 
-def weighted_poisson_sampling(width, height, edge_map, base_min_dist, fixed_points=None, k=30):
+def weighted_poisson_sampling(
+    width,
+    height,
+    edge_map,
+    base_min_dist,
+    fixed_points=None,
+    k=30,
+):
     """
     Weighted Poisson disk sampling based on edge strength.
 
@@ -273,8 +301,11 @@ def weighted_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
 
     fixed_list = []
     if fixed_points is not None and len(fixed_points) > 0:
-        fixed_list = [(pt[0], pt[1]) for pt in fixed_points
-                      if 0 <= pt[0] < height and 0 <= pt[1] < width]
+        fixed_list = [
+            (pt[0], pt[1])
+            for pt in fixed_points
+            if 0 <= pt[0] < height and 0 <= pt[1] < width
+        ]
 
     fixed_tree = None
     if len(fixed_list) > 0:
@@ -311,7 +342,9 @@ def weighted_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
                     idx = grid[ny, nx]
                     if idx != -1:
                         other = points[idx]
-                        dist = np.sqrt((point[0] - other[0])**2 + (point[1] - other[1])**2)
+                        dy2 = (point[0] - other[0]) ** 2
+                        dx2 = (point[1] - other[1]) ** 2
+                        dist = np.sqrt(dy2 + dx2)
                         if dist < base_min_dist:
                             return False
         return True
@@ -342,7 +375,7 @@ def weighted_poisson_sampling(width, height, edge_map, base_min_dist, fixed_poin
             radius = np.random.uniform(base_min_dist, 2 * base_min_dist)
             new_point = (
                 point[0] + radius * np.cos(angle),
-                point[1] + radius * np.sin(angle)
+                point[1] + radius * np.sin(angle),
             )
 
             if is_valid(new_point, check_probability=True):
@@ -408,11 +441,23 @@ def polygonize_image(image_path, num_points=6000, sampling_mode="poisson"):
         points = points.astype(int)
     elif sampling_mode == "adaptive":
         # 適応的サンプリング: エッジ付近は密、遠いところは疎
-        points = adaptive_poisson_sampling(w, h, edges, min_dist, fixed_points=feature_points)
+        points = adaptive_poisson_sampling(
+            w,
+            h,
+            edges,
+            min_dist,
+            fixed_points=feature_points,
+        )
         points = points.astype(int)
     elif sampling_mode == "weighted":
         # 重み付きサンプリング: エッジ強度に応じて点密度を変える
-        points = weighted_poisson_sampling(w, h, edges, min_dist, fixed_points=feature_points)
+        points = weighted_poisson_sampling(
+            w,
+            h,
+            edges,
+            min_dist,
+            fixed_points=feature_points,
+        )
         points = points.astype(int)
     else:
         # 従来方式: ランダムサンプリング (random or any other value)
