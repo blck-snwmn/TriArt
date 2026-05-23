@@ -1,0 +1,12 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.py"
+      run: uv run --dev ruff check .
+    fmt:
+      glob: "*.py"
+      run: uv run --dev ruff format --check .
+    test:
+      glob: "*.py"
+      run: uv run --dev python -m pytest -v
