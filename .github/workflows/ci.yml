@@ -17,14 +17,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - name: Install aqua tools
+        uses: aquaproj/aqua-installer@82d0e83878a8657c4a6f2ff1755d3bfbfc67f329 # v4.1.0
+        with:
+          aqua_version: v2.64.0
 
       - name: Set up Python
         run: uv python install
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --locked
 
       - name: Run ruff check
         run: uv run ruff check .
@@ -39,14 +41,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - name: Install aqua tools
+        uses: aquaproj/aqua-installer@82d0e83878a8657c4a6f2ff1755d3bfbfc67f329 # v4.1.0
+        with:
+          aqua_version: v2.64.0
 
       - name: Set up Python
         run: uv python install
 
       - name: Install dependencies
-        run: uv sync --dev
+        run: uv sync --locked
 
       - name: Run tests
         run: uv run pytest -v
